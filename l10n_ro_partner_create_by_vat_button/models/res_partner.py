@@ -21,18 +21,21 @@ class ResPartner(models.Model):
     @api.depends("vat", "country_id", "street", "city", "state_id")
     def _compute_warning_companies(self):
         for partner in self:
-            partner.warning_companies = "Missing:"
+            partner.warning_companies = False
             if partner.is_company and partner.country_id and partner.country_id.code == "RO":
+                field_missing = []
                 if not partner.vat:
-                    partner.warning_companies += " VAT,"
+                    field_missing.append(_("VAT"))
                 if not partner.street:
-                    partner.warning_companies += " Street,"
+                    field_missing.append(_("Street"))
                 if not partner.city:
-                    partner.warning_companies += " City,"
+                    field_missing.append(_("City"))
                 if not partner.state_id:
-                    partner.warning_companies += " State,"
-                if partner.warning_companies.endswith(","):
-                    partner.warning_companies = partner.warning_companies[:-1] + "!"
+                    field_missing.append(_("State"))
+                if field_missing:
+                    partner.warning_companies = _("Missing: ") + ", ".join(field_missing) + "!"
+
+
 
     @api.constrains("vat", "country_id")
     def check_vat(self):

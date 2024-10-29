@@ -42,6 +42,8 @@ class GetPartnerData(models.TransientModel):
             raise ValidationError(_("You can't use this function on delivery contacts."))
         if self.service == "anaf":
             res = self.partner_id.get_partner_data()
+            if not res:
+                self.status_message = _("No data found!")
             if "warning" in res:
                 self.status_message = _("Attention! ") + res["warning"]["message"]
             else:
