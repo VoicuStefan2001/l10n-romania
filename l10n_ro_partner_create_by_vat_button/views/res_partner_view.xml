@@ -7,7 +7,16 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form" />
             <field name="arch" type="xml">
-                <xpath expr="//div[@class='alert alert-warning oe_edit_only']" position="after">
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <button
+                            name="%(action_get_partner_data)d"
+                            attrs="{'invisible': [('name', '&lt;&gt;', ' '),('vat', '=', False),('is_company', '=', False )]}"
+                            string="Get Data"
+                            context="{'active_id': active_id}"
+                            type="action"
+                        />
+                    </header>
                     <field name="warning_companies" invisible="1" />
                     <div
                         class="alert alert-danger"
@@ -19,17 +28,6 @@
                             <field name="warning_companies" />
                         </span>
                     </div>
-                </xpath>
-                <xpath expr="//sheet" position="before">
-                    <header>
-                        <button
-                            name="%(action_get_partner_data)d"
-                            attrs="{'invisible': [('name', '&lt;&gt;', ' '),('vat', '=', False),('is_company', '=', False )]}"
-                            string="Get Data"
-                            context="{'active_id': active_id}"
-                            type="action"
-                        />
-                    </header>
                 </xpath>
             </field>
         </record>

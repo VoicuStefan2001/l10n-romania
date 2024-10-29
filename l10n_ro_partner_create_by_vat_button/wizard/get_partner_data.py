@@ -13,6 +13,7 @@ class GetPartnerData(models.TransientModel):
     )
     state = fields.Selection(selection=[("get", "get"), ("set", "set")], default="get")
     status_message = fields.Char()
+    success = fields.Boolean()
 
     def default_get(self, fields):
         res = super().default_get(fields)
@@ -40,19 +41,25 @@ class GetPartnerData(models.TransientModel):
     def do_get_data(self):
         if self.partner_id.type == "delivery":
             raise ValidationError(_("You can't use this function on delivery contacts."))
+        res = {}
+        self.success = True
         if self.service == "anaf":
             res = self.partner_id.get_partner_data()
-            if not res:
-                self.status_message = _("No data found!")
-            if "warning" in res:
-                self.status_message = _("Attention! ") + res["warning"]["message"]
-            else:
-                self.status_message = _("Partner data updated!")
+
         if self.service == "vies":
-            self.partner_id.get_partner_name_from_vies()
-            self.status_message = _("Partner data updated!")
+            res = self.partner_id.get_partner_name_from_vies(raise_exception=False)
+
         if self.partner_id.zip and hasattr(self.partner_id, "onchange_zip"):
             self.partner_id.onchange_zip()
+
+        if not res:
+            self.status_message = _("No data found!")
+            self.success = False
+        elif "warning" in res:
+            self.status_message = _("Attention! ") + res["warning"]["message"]
+            self.success = False
+        else:
+            self.status_message = _("Partner data updated!")
 
         self.state = "set"
         return {

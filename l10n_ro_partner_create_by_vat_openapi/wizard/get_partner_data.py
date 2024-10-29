@@ -16,6 +16,7 @@ class GetPartnerData(models.TransientModel):
             result = self.partner_id.button_get_partner_data_openapi()
             if result:
                 self.status_message = result
+                self.success = False
             else:
                 self.status_message = _("Partner data updated!")
         return res

@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <form string="Get Partner Data">
                 <field name="state" invisible="1" />
+                <field name="success" invisible="1" />
                 <div states="get">
                     <div>
                         <p>Select service for partner:
@@ -15,7 +16,9 @@
                         <field name="service" widget="radio" />
                     </div>
                 </div>
-                <div states="set">
+                <div states="set" class="oe_inline">
+                    <i class="fa fa-2x fa-thumbs-up mr-3 text-success" title="Success"  attrs="{'invisible':[('success','=',False)]}"/>
+                    <i class="fa fa-2x fa-thumbs-down mr-3 text-danger" title="Error" attrs="{'invisible':[('success','=',True)]}"/>
                     <field name="status_message" readonly="True" />
                 </div>
                 <footer>

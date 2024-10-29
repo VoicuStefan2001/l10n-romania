@@ -77,7 +77,7 @@ class ResPartner(models.Model):
         return res
         # self.onchange_vat_subjected()  # fortare compltare ro
 
-    def get_partner_name_from_vies(self):
+    def get_partner_name_from_vies(self, raise_exception=True):
         # Create a client for the VIES SOAP service
         client = Client("http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl")
 
@@ -89,16 +89,26 @@ class ResPartner(models.Model):
             vat_number = self.vat
             country_code = self.country_id.code
         else:
-            raise UserError(_("Please add the country code to the vat number or country field"))
+            message = _("Please add the country code to the vat number or country field")
+            if raise_exception:
+                raise UserError(message)
+            else:
+                return {"warning": {"message": message}}
+
 
         response = client.service.checkVat(countryCode=country_code, vatNumber=vat_number)
         if response.valid:
-            self.vat = vat_number
+            self.vat = country_code + vat_number
             self.country_id = self.env["res.country"].search([("code", "ilike", country_code)])[0].id
             self.name = response.name
             self.street = response.address
         else:
-            raise UserError(_("Invalid VAT"))
+            message = _("Invalid VAT")
+            if raise_exception:
+                raise UserError(message)
+            else:
+                return {"warning": {"message": message}}
+        return {"success": True}
 
     @api.onchange("vat", "country_id")
     def ro_vat_change(self):
